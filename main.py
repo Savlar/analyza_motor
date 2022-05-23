@@ -41,14 +41,17 @@ def get_avg(lst, length, correction=0.):
 
 def get_delta(lst):
     d = []
-    items_per_deg = len(lst) / 720
+    items_per_deg = len(lst[0]) / 720
     items = 111
     angles = numpy.linspace(310, 410, num=items)
-    for i in range(len(angles) - 1):
-        x1 = lst[int(items_per_deg * angles[i])]
-        x2 = lst[int(items_per_deg * angles[i + 1])]
-        d.append((x2 - x1) / (100 / items))
-    return max(d)
+    for cycle in lst:
+        tmp = []
+        for i in range(len(angles) - 1):
+            x1 = cycle[int(items_per_deg * angles[i])]
+            x2 = cycle[int(items_per_deg * angles[i + 1])]
+            tmp.append((x2 - x1) / (100 / items))
+        d.append(max(tmp))
+    return d
 
 
 def get_constant(lst):
@@ -70,9 +73,9 @@ def graph(lst):
     angles = numpy.linspace(0, 360, num=3600)
     for alpha in angles:
         p_alpha.append(lst[floor((len(lst) / 720) * alpha)])
-        v_alpha.append((pi * pow(D, 2)) / 4 *
-                       (r * (1 - cos(alpha)) + 1 *
-                        (1 - sqrt(1 - pow(r / l, 2) * pow(sin(alpha), 2))) + 0.000059652))
+        v_alpha.append(((pi * pow(D, 2)) / 4) *
+                       ((r * (1 - cos(alpha))) + 1 *
+                        (1 - sqrt(1 - pow(r / l, 2) * pow(sin(alpha), 2)))) + 0.000059652)
     ax.plot(v_alpha, p_alpha)
     plt.savefig('graph2.jpg')
 
@@ -119,20 +122,20 @@ def get_p_data(filename):
     priemernehodnoty2stlpec = get_avg(cyklus2orezany, min_length)
     priemernehodnoty3stlpec = get_avg(cyklus3orezany, min_length, c)
     priemernehodnoty4stlpec = get_avg(cyklus4orezany, min_length)
-    return priemernehodnoty3stlpec
+    return priemernehodnoty3stlpec, cyklus3orezany
 
 
 if __name__ == '__main__':
     for file in os.listdir('files'):
-        priemernehodnoty3stlpec = get_p_data(file)
+        priemernehodnoty3stlpec, cyklus3orezany = get_p_data(file)
 
         # max_angle = priemernehodnoty3stlpec.index(max(priemernehodnoty3stlpec)) * (720 / len(priemernehodnoty3stlpec))
 
         # draw_p_alpha_graph(priemernehodnoty3stlpec, filename)
-        # graph(priemernehodnoty3stlpec)
+        graph(priemernehodnoty3stlpec)
 
-        delta = get_delta(priemernehodnoty3stlpec)
-        print(file, delta)
+        delta = get_delta(cyklus3orezany)
+        print(file, delta, len(delta))
 
     # add_p_alpha_graph_legend()
 
