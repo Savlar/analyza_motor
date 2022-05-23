@@ -1,6 +1,8 @@
+import math
 import os
 import matplotlib.pyplot as plt
 import numpy
+from math import sin, cos, sqrt, pi, floor
 
 
 fig = plt.figure()
@@ -39,12 +41,14 @@ def get_avg(lst, length, correction=0.):
 
 def get_delta(lst):
     d = []
-    delta_angle = 720 / len(lst[0])
-    for cycle in lst:
-        start = int((len(cycle) / 720) * 310)
-        end = 1 + int((len(cycle) / 720) * 410)
-        d.append(max(((cycle[i + 1] - cycle[i]) / delta_angle) for i in range(start, end)))
-    return sum(d) / len(d)
+    items_per_deg = len(lst) / 720
+    items = 111
+    angles = numpy.linspace(310, 410, num=items)
+    for i in range(len(angles) - 1):
+        x1 = lst[int(items_per_deg * angles[i])]
+        x2 = lst[int(items_per_deg * angles[i + 1])]
+        d.append((x2 - x1) / (100 / items))
+    return max(d)
 
 
 def get_constant(lst):
@@ -57,35 +61,30 @@ def get_constant(lst):
     return sum(p) / len(p)
 
 
-def run():
-    for filename in os.listdir('files'):
-        file = get_data('files/' + filename)
-        cols = list(zip(*file))
-        pom4 = get_cycle_starts(cols)
-        if not (-1 <= cols[2][pom4[0]] <= 1):
-            pom4 = pom4[1:]
-        min_length = min([pom4[i + 2] - pom4[i] for i in range(0, len(pom4) - 2, 2)]) + 1
-
-        cyklus2orezany = slice_(get_cycle(cols[2], pom4), min_length)
-        cyklus3orezany = slice_(get_cycle(cols[2], pom4), min_length)
-        cyklus4orezany = slice_(get_cycle(cols[3], pom4), min_length)
-        delta = get_delta(cyklus3orezany)
-
-        c = abs(get_constant(cyklus3orezany))
-
-        priemernehodnoty2stlpec = get_avg(cyklus2orezany, min_length)
-        priemernehodnoty3stlpec = get_avg(cyklus3orezany, min_length, c)
-        priemernehodnoty4stlpec = get_avg(cyklus4orezany, min_length)
-
-        x = numpy.linspace(0, 720, num=len(priemernehodnoty3stlpec))
-        a = numpy.array(list(zip(x, priemernehodnoty3stlpec)))
-        a = numpy.matrix.transpose(a).tolist()
-        ax.plot(*a, label=filename)
-        print(filename, delta)
+def graph(lst):
+    v_alpha = []
+    p_alpha = []
+    D = 0.075
+    r = 0.0388
+    l = 0.1265
+    angles = numpy.linspace(0, 360, num=3600)
+    for alpha in angles:
+        p_alpha.append(lst[floor((len(lst) / 720) * alpha)])
+        v_alpha.append((pi * pow(D, 2)) / 4 *
+                       (r * (1 - cos(alpha)) + 1 *
+                        (1 - sqrt(1 - pow(r / l, 2) * pow(sin(alpha), 2))) + 0.000059652))
+    ax.plot(v_alpha, p_alpha)
+    plt.savefig('graph2.jpg')
 
 
-if __name__ == '__main__':
-    run()
+def draw_p_alpha_graph(lst, filename):
+    x = numpy.linspace(0, 720, num=len(lst))
+    a = numpy.array(list(zip(x, lst)))
+    a = numpy.matrix.transpose(a).tolist()
+    ax.plot(*a, label=filename)
+
+
+def add_p_alpha_graph_legend():
     # plt.ylim([0.8, 1.5])
     plt.vlines(216, 0, 7, colors=['blue'])
     plt.vlines(360, 0, 7, colors=['black'])
@@ -100,6 +99,41 @@ if __name__ == '__main__':
     plt.title('p - α diagram')
     plt.xticks([*range(90, 721, 90)] + [22, 216, 507], fontsize=7.5)
     legend = ax.legend(loc='upper center', bbox_to_anchor=(1.35, 0.9))
-    plt.savefig('output.jpg', bbox_extra_artists=(legend, ), bbox_inches='tight')
+    plt.savefig('output.jpg', bbox_extra_artists=(legend,), bbox_inches='tight')
+
+
+def get_p_data(filename):
+    file = get_data('files/' + filename)
+    cols = list(zip(*file))
+    pom4 = get_cycle_starts(cols)
+    if not (-1 <= cols[2][pom4[0]] <= 1):
+        pom4 = pom4[1:]
+    min_length = min([pom4[i + 2] - pom4[i] for i in range(0, len(pom4) - 2, 2)]) + 1
+
+    cyklus2orezany = slice_(get_cycle(cols[2], pom4), min_length)
+    cyklus3orezany = slice_(get_cycle(cols[2], pom4), min_length)
+    cyklus4orezany = slice_(get_cycle(cols[3], pom4), min_length)
+
+    c = abs(get_constant(cyklus3orezany))
+
+    priemernehodnoty2stlpec = get_avg(cyklus2orezany, min_length)
+    priemernehodnoty3stlpec = get_avg(cyklus3orezany, min_length, c)
+    priemernehodnoty4stlpec = get_avg(cyklus4orezany, min_length)
+    return priemernehodnoty3stlpec
+
+
+if __name__ == '__main__':
+    for file in os.listdir('files'):
+        priemernehodnoty3stlpec = get_p_data(file)
+
+        # max_angle = priemernehodnoty3stlpec.index(max(priemernehodnoty3stlpec)) * (720 / len(priemernehodnoty3stlpec))
+
+        # draw_p_alpha_graph(priemernehodnoty3stlpec, filename)
+        # graph(priemernehodnoty3stlpec)
+
+        delta = get_delta(priemernehodnoty3stlpec)
+        print(file, delta)
+
+    # add_p_alpha_graph_legend()
 
     # avg = sum(priemernehodnoty3stlpec[1255:1402]) / (1402-1255)
