@@ -70,11 +70,11 @@ def graph(lst):
     D = 0.075
     r = 0.0388
     l = 0.1265
-    angles = numpy.linspace(0, 360, num=3600)
+    angles = numpy.linspace(350, 419.9, num=1800)
     for alpha in angles:
         p_alpha.append(lst[floor((len(lst) / 720) * alpha)])
         v_alpha.append(((pi * pow(D, 2)) / 4) *
-                       ((r * (1 - cos(alpha))) + 1 *
+                       ((r * (1 - cos(alpha))) + l *
                         (1 - sqrt(1 - pow(r / l, 2) * pow(sin(alpha), 2)))) + 0.000059652)
     ax.plot(v_alpha, p_alpha)
     plt.savefig('graph2.jpg')
@@ -127,6 +127,7 @@ def get_p_data(filename):
 
 if __name__ == '__main__':
     for file in os.listdir('files'):
+        # file = 'N2NG50-1500-100SK-27BTDC (1).txt'
         priemernehodnoty3stlpec, cyklus3orezany = get_p_data(file)
 
         # max_angle = priemernehodnoty3stlpec.index(max(priemernehodnoty3stlpec)) * (720 / len(priemernehodnoty3stlpec))
@@ -135,8 +136,9 @@ if __name__ == '__main__':
         graph(priemernehodnoty3stlpec)
 
         delta = get_delta(cyklus3orezany)
-        print(file, delta, len(delta))
-
+        print(file, max(delta))
+        print(sum(delta) / len(delta))
+        break
     # add_p_alpha_graph_legend()
 
     # avg = sum(priemernehodnoty3stlpec[1255:1402]) / (1402-1255)
