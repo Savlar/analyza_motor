@@ -2,7 +2,7 @@ import math
 import os
 import matplotlib.pyplot as plt
 import numpy
-from math import sin, cos, sqrt, pi, floor
+from math import sin, cos, sqrt, pi, floor, radians as rad
 
 
 fig = plt.figure()
@@ -70,12 +70,12 @@ def graph(lst):
     D = 0.075
     r = 0.0388
     l = 0.1265
-    angles = numpy.linspace(350, 419.9, num=1800)
+    angles = numpy.linspace(0, 719.9, num=720)
     for alpha in angles:
         p_alpha.append(lst[floor((len(lst) / 720) * alpha)])
         v_alpha.append(((pi * pow(D, 2)) / 4) *
-                       ((r * (1 - cos(alpha))) + l *
-                        (1 - sqrt(1 - pow(r / l, 2) * pow(sin(alpha), 2)))) + 0.000059652)
+                       ((r * (1 - cos(rad(alpha)))) + l *
+                        (1 - sqrt(1 - pow(r / l, 2) * pow(sin(rad(alpha)), 2)))) + 0.000059652)
     ax.plot(v_alpha, p_alpha)
     plt.savefig('graph2.jpg')
 
