@@ -77,7 +77,7 @@ def graph(lst):
                        ((r * (1 - cos(rad(alpha)))) + l *
                         (1 - sqrt(1 - pow(r / l, 2) * pow(sin(rad(alpha)), 2)))) + 0.000059652)
     p_i = (1 / 0.000686) * sum(((p_alpha[i + 1] + p_alpha[i]) / 2) * (v_alpha[i + 1] - v_alpha[i]) for i in range(719))
-    print(p_i)
+    print("p_i =", p_i)
     ax.plot(v_alpha, p_alpha)
     plt.savefig('graph2.jpg')
 
