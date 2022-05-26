@@ -1,4 +1,5 @@
 import math
+from math import log, e
 import os
 import matplotlib.pyplot as plt
 import numpy
@@ -77,7 +78,13 @@ def graph(lst):
                        ((r * (1 - cos(rad(alpha)))) + l *
                         (1 - sqrt(1 - pow(r / l, 2) * pow(sin(rad(alpha)), 2)))) + 0.000059652)
     p_i = (1 / 0.000686) * sum(((p_alpha[i + 1] + p_alpha[i]) / 2) * (v_alpha[i + 1] - v_alpha[i]) for i in range(719))
+    n = []
+    for i in range(220, 331):
+        n.append(log(p_alpha[i] / p_alpha[i + 1]) / log(v_alpha[i + 1] / v_alpha[i]))
+    print("n =", sum(n) / len(n))
     print("p_i =", p_i)
+    ax.set_yscale('log')
+    ax.set_xscale('log')
     ax.plot(v_alpha, p_alpha)
     plt.savefig('graph2.jpg')
 
@@ -136,11 +143,12 @@ if __name__ == '__main__':
 
         # draw_p_alpha_graph(priemernehodnoty3stlpec, filename)
         graph(priemernehodnoty3stlpec)
-
+        print(len(priemernehodnoty3stlpec))
+#        for cycle in cyklus3orezany:
+ #           graph(cycle)
         delta = get_delta(cyklus3orezany)
         print(file, max(delta))
         print(sum(delta) / len(delta))
-        break
     # add_p_alpha_graph_legend()
 
     # avg = sum(priemernehodnoty3stlpec[1255:1402]) / (1402-1255)
