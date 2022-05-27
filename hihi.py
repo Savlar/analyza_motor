@@ -79,7 +79,7 @@ def graph(lst):
                         (1 - sqrt(1 - pow(r / l, 2) * pow(sin(rad(alpha)), 2)))) + 0.000029809)
     p_i = (1 / 0.000343) * sum(((p_alpha[i + 1] + p_alpha[i]) / 2) * (v_alpha[i + 1] - v_alpha[i]) for i in range(719))
     n = []
-    for i in range(719):
+    for i in range(451, 490):
         n.append(log(p_alpha[i] / p_alpha[i + 1]) / log(v_alpha[i + 1] / v_alpha[i]))
     filtered = list(filter(lambda x: 1.2 <= x <= 1.3, n))
     n = sum(filtered) / len(filtered)
@@ -102,7 +102,7 @@ def graph(lst):
                 if item - e <= round(max(KH), dec) <= item + e:
                     indices.append(v_alpha.index(item))
             e *= 10
-    indices = sorted(list(filter(lambda x: 360 <= x <= 720, indices)))
+    indices = sorted(list(filter(lambda x: 360 <= x <= 390, indices)))
     print(indices)
     ppi = []
     for i in range(719):
@@ -111,9 +111,11 @@ def graph(lst):
     for i in range(719):
         delta_pci.append(ppi[i] * (v_alpha[i] / v_alpha[359]))
     x_a = []
-    start_comb = 330
-    for i in range(start_comb, 401):
-        x_a.append((sum(delta_pci[j] for j in range(start_comb, i))) / (sum(delta_pci[j] for j in range(start_comb, indices[0]))))
+    start_comb = 340
+    with open('values.txt', 'w') as file:
+        for i in range(start_comb, 401):
+            x_a.append((sum(delta_pci[j] for j in range(start_comb, i))) / (sum(delta_pci[j] for j in range(start_comb, indices[0]))))
+            file.write(str(x_a[-1]) + '\n')
     for num in [359, 719]:
         print(v_alpha[num])
     ax.plot(angles[start_comb:401], x_a)
